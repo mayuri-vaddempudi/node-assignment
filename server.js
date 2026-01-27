@@ -41,11 +41,11 @@ http.createServer((req, res) => {
             <p>This site demonstrates a Node.js server using http, url, and fs.</p>
             <h3>How to navigate / test routes:</h3>
             <ul>
-                <li>/about - content loaded from about.html</li>
-                <li>/contact - content loaded from contact.txt</li>
-                <li>/dogs - default route, asks you to use query parameters</li>
-                <li>/dogs?type=working - shows all working dogs</li>
-                <li>/dogs?type=toy - shows all toy dogs</li>
+                <li>/about - content loaded from about.html(http://localhost:3333/about / http://127.0.0.1:3333/about)</li>
+                <li>/contact - content loaded from contact.txt(http://localhost:3333/contact / http://127.0.0.1:3333/contact)</li>
+                <li>/dogs - default route, asks you to use query parameters(http://localhost:3333/dogs / http://127.0.0.1:3333/dogs)</li>
+                <li>/dogs?type=working - shows all working dogs(http://localhost:3333/dogs?type=working / http://127.0.0.1:3333/dogs?type=working)</li>
+                <li>/dogs?type=toy - shows all toy dogs(http://localhost:3333/dogs?type=toy / http://127.0.0.1:3333/dogs?type=toy)</li>
             </ul>
         `);
         res.write(footer("Home page footer"));
