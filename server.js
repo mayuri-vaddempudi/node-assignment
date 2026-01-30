@@ -17,12 +17,8 @@ const navigation = () => `
 `;
 
 // --------- Data array ----------
-const dogs = [
-    { id: 1, type: "working", name: "Border Collie", job: "Herding" },
-    { id: 2, type: "working", name: "German Shepherd", job: "Police" },
-    { id: 3, type: "toy", name: "Chihuahua", job: "Lap warming" },
-    { id: 4, type: "toy", name: "Pomeranian", job: "Looking cute" }
-];
+const dogs = require("./data/dogs");
+
 
 // --------- Server ----------
 http.createServer((req, res) => {
@@ -35,6 +31,8 @@ http.createServer((req, res) => {
 
     // ---------- HOME ----------
     if (path === "/") {
+        const workingCount = dogs.filter(d => d.type === "working").length;
+        const toyCount = dogs.filter(d => d.type === "toy").length;
         res.write(navigation());
         res.write(header("Welcome to the Dog Server"));
         res.write(`
@@ -47,6 +45,43 @@ http.createServer((req, res) => {
                 <li>/dogs?type=working - shows all working dogs(http://localhost:3333/dogs?type=working / http://127.0.0.1:3333/dogs?type=working)</li>
                 <li>/dogs?type=toy - shows all toy dogs(http://localhost:3333/dogs?type=toy / http://127.0.0.1:3333/dogs?type=toy)</li>
             </ul>
+        `);
+
+        res.write(`
+            <section>
+                <h2>About This Site</h2>
+                <p>
+                    This is a simple Node.js HTTP server built without Express.
+                    It demonstrates routing, query parameters, and file reading.
+                </p>
+            </section>
+        
+            <section>
+                <h2>Dog Statistics</h2>
+                <ul>
+                    <li>Total dogs: ${dogs.length}</li>
+                    <li>Working dogs: ${workingCount}</li>
+                    <li>Toy dogs: ${toyCount}</li>
+                </ul>
+            </section>
+        `);
+
+        res.write(`
+            <section>
+                <h2>Featured Dogs ⭐</h2>
+                <p><strong>${dogs[0].name}</strong> – ${dogs[0].job}</p>
+                <p><strong>${dogs[1].name}</strong> – ${dogs[1].job}</p>
+            </section>
+        `);
+        res.write(`
+            <section>
+                <h2>Server Info</h2>
+                <ul>
+                    <li>Node version: ${process.version}</li>
+                    <li>Server port: 3333</li>
+                    
+                </ul>
+            </section>
         `);
         res.write(footer("Home page footer"));
         res.end();
@@ -82,23 +117,42 @@ http.createServer((req, res) => {
         // ---------- DOGS (QUERIES + DATA) ----------
     } else if (path === "/dogs") {
         res.write(navigation());
-        res.write(header("Dogs"));
+        res.write(header("All Dogs"));
+
+        // Hint message (shown only when no filter is used)
+        if (!query.type && !query.limit) {
+            res.write("<p>Please choose a dog type using ?type=working or ?type=toy</p>");
+        }
+
+        // FILTER LOGIC GOES HERE
+        let dogsToShow = dogs;
 
         if (query.type) {
-            const filteredDogs = dogs.filter(d => d.type === query.type);
-            if (filteredDogs.length === 0) {
-                res.write(`<p>No dogs found for type: ${query.type}</p>`);
-            } else {
-                filteredDogs.forEach(dog => {
-                    res.write(`<p><strong>${dog.name}</strong> ${dog.job}</p>`);
-                });
-            }
+            dogsToShow = dogsToShow.filter(d => d.type === query.type);
+            res.write(`<h3>Type: ${query.type}</h3>`);
+        }
+
+        // Render results
+        if (dogsToShow.length === 0) {
+            res.write("<p>No dogs found.</p>");
         } else {
-            res.write("<p>Please choose a dog type using ?type=working or ?type=toy</p>");
+            dogsToShow.forEach(dog => {
+                res.write(`
+                    <div style="margin-bottom: 10px;">
+                        <strong>${dog.name}</strong><br>
+                        Type: ${dog.type}<br>
+                        Job: ${dog.job}<br>
+                        Origin: ${dog.origin}<br>
+                        Lifespan: ${dog.lifespan}<br>
+                        Description: ${dog.description}
+                    </div>
+                `);
+            });
         }
 
         res.write(footer("Dogs footer"));
         res.end();
+
 
         // ---------- 404 ----------
     } else {
